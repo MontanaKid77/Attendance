@@ -30,7 +30,7 @@ while(True):
                         students.pop(studentRemove)
                         
                     elif confirmation == ['no', 'n']:
-                        
+                        pass
                     else:
                         print "Please enter 'yes', 'no', 'y', or 'n'"
                         
