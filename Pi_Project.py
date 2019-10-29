@@ -21,16 +21,21 @@ while(True):
                     newStudent = raw_input("Do you need to add a student? ")
                     newPin = input("Enter their new pin: ")
                     students[newStudent] = newPin
+                    
                 elif (getOption == "remove student"):
                     studentRemove = raw_input("Which student would you like to remove? ")
                     confirmation = raw_input("Are you sure you would like to remove {} ").lower().format(studentRemove)
 
                     if confirmation == ['yes', 'y']:
                         students.pop(studentRemove)
+                        
                     elif confirmation == ['no', 'n']:
-                        pass
+                        
                     else:
                         print "Please enter 'yes', 'no', 'y', or 'n'"
+                        
+                 elif (get Option == "exit"):
+                    break
             
     elif (student == "Done"):
         break
@@ -62,4 +67,4 @@ while(True):
 print "These students are present. {}".format(present)
 
     
-student[newStudent] = newPin
+
