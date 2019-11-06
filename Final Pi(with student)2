@@ -1,0 +1,143 @@
+from hashlib import sha256
+from math import *
+from time import asctime
+
+present = []
+admin = {}
+
+
+admin["cherry"] = 1009
+
+admin_file = open("admin_database.txt", "w")
+
+admin_file.write(str(admin))
+admin_file.close()
+del admin_file
+
+def addStudent(name, pin):
+    pin = sha256(str(pin)).digest()
+    students[name] = pin
+    new_studentdb_file = open("student_database.txt", "w")
+    new_studentdb_file.write(str(students))
+    new_studentdb_file.close()
+    del new_studentdb_file
+
+def removeStudent(name):
+    new_studentdb_file = open("student_database.txt", "w")
+
+    try:
+        students.pop(name)
+
+    except:
+        print "{} not found in database.".format(name)
+        return
+
+    new_studentdb_file.write(str(students))
+    new_studentdb_file.close()
+    del new_studentdb_file
+
+def attendance():
+    att_file = open("attendance_log.txt", "a")
+    t = asctime()
+    entry = t + " - Present: "
+    counter = 0
+
+    for i in present:
+        counter += 1
+        if (counter < len(present)):
+            entry += i.capitalize() + ", "
+        else:
+            entry += i.capitalize()
+
+    entry += "\n"
+
+    att_file.write(entry)
+    att_file.close()
+    print "Today's attendance was added to the database!"
+    raw_input("Please press enter...")
+    exit(0)
+
+while(True):
+    user = (raw_input("What is your name? ")).lower()
+    old_studentdb_file = open("student_database.txt", "r")
+    admin_file = open("admin_database.txt", "r")
+
+    students = eval(old_studentdb_file.read())
+    admin = eval(admin_file.read())
+
+    admin_file.close()
+    old_studentdb_file.close()
+    del old_studentdb_file
+    del admin_file
+
+    if (user in admin):
+
+        while(True):
+            pin = raw_input("Please enter your pin: ")
+
+            if (int(pin) == admin.get(user)):
+                print "What do you need to do? 'add student', 'remove student', 'check attendance'"
+                getOption = raw_input("What would you like to do? ").lower()
+
+                if (getOption == "add student"):
+                    newStudent = raw_input("New student name: ")
+                    newPin = raw_input("Enter their new pin: ")
+                    addStudent(newStudent, newPin)
+
+                if (getOption == "remove student"):
+                    name = raw_input("Which student would you like to remove? ")
+                    check = raw_input("Are you sure you would like to remove " + str(name) + " from your roll sheet? ")
+
+                    if (check == 'yes', 'y'):
+
+                        for i in range(4):
+                            doublecheck = raw_input("Please re-enter your pin: ")
+
+                            if (int(doublecheck) == admin.get(user)):
+                                removeStudent(name)
+                                break
+
+                            else:
+                                i +=1
+                                print "Please try again."
+
+                if (getOption == "check attendance"):
+                    attendance()
+
+    elif (user in students):
+
+        while True:
+
+            if (user in present):
+                print "You are already signed in for today"
+
+            else:
+
+                trys = 0
+
+                while True:
+
+                    pin = raw_input("Please enter your pin: ")
+                    hashpin = sha256(pin).digest()
+
+                    if (hashpin != students.get(user) and trys <= 3):
+                        print "This pin is incorrect, please try again"
+                        trys += 1
+
+                    elif (hashpin == students.get(user)):
+                        print "Welcome back {}".format(str(user))
+                        present.append(user)
+                        break
+
+                    elif (trys > 3):
+                        print "Too many failed attempts, try again later"
+                        break
+
+                break
+
+    else:
+        print "student not found"
+        print students
+        break
+
+# Add absent list, 
