@@ -1,0 +1,27 @@
+import smtplib
+from time import ctime
+
+sent_from = 'bmckaycsc132@gmail.com'
+send_to = 'montanakid867@gmail.com'
+subject = ctime()
+body = entry
+
+email_text = """\
+From: {}
+To: {}
+Subject: {}
+
+{}
+""".format(sent_from, send_to, subject, body)
+
+passwd = "CSC132password"
+
+try:
+    server = smtplib.SMTP_SSL('smtp.gmail.com', 465)
+    server.ehlo()
+    server.login(user, passwd)
+    server.sendmail(sent_from, send_to, email_text)
+    server.close()
+    print "SENT!"
+except:
+    print "somethings wrong"
