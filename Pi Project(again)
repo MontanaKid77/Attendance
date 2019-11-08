@@ -1,0 +1,264 @@
+########################################################
+##              Jimmie Gann, Brian Mckay              ##
+##               Dr. Cherry CSC 132-002               ##
+## __________________________________________________ ##
+##             Student Atendance Checker              ##
+##     This program allows students to log in then    ##
+##    the professor can save the data to a database   ##
+########################################################
+
+###################################
+## Importing Necessary Libraries ##
+###################################
+
+from hashlib import sha256
+from math import *
+from time import asctime
+import os
+
+##################
+## Global Stuff ##
+##################
+
+present = []
+admin = {}
+
+admin["cherry"] = 'j\xd4\xa6\xb1\xe5\xeaUiy^Qmq\x90\x9e\x0c\xe4\x80\x9d\x9d\xc9\x83\xd2\xc2\x19\x14OhO\x81n\x12' # = 1009
+
+admin_file = open("admin_database.txt", "w")
+
+admin_file.write(str(admin))
+admin_file.close()
+del admin_file
+
+# This will see if the student database file exists in your library and if not will create the file
+# Necessary because this is the only way to create a file the first time you run this program without causing an error
+checkFile = "student_database.txt"
+
+if os.path.isfile(checkFile):
+    pass
+else:
+    old_studentdb_file = open("student_database.txt", "w")
+    old_studentdb_file.write("{}")
+
+    old_studentdb_file.close()
+    del old_studentdb_file
+
+#########################
+## Necessary Functions ##
+#########################
+
+def addStudent(name, pin):
+    pin = sha256(str(pin)).digest()
+    students[name] = pin
+    new_studentdb_file = open("student_database.txt", "w")
+    new_studentdb_file.write(str(students))
+    new_studentdb_file.close()
+    del new_studentdb_file
+    print "New student added to database!"
+
+def removeStudent(name):
+    new_studentdb_file = open("student_database.txt", "w")
+
+    try:
+        students.pop(name)
+        print "Student has been removed from the database."
+
+    except:
+        print "{} not found in database.".format(name)
+        return
+
+    new_studentdb_file.write(str(students))
+    new_studentdb_file.close()
+    del new_studentdb_file
+
+def attendance():
+
+    #This is so that i will be able to get the list of absent students
+    allStudents = list(students)
+    att_file = open("attendance_log.txt", "a")
+    t = asctime()
+    entry = t + " - Present: "
+    counter = 0
+
+    for i in present:
+        counter += 1
+        allStudents.remove(i)
+        if (counter < len(present)):
+            entry += i.capitalize() + ", "
+        else:
+            entry += i.capitalize()
+
+    counter2 = 0
+    entry += " --- Absent: "
+
+    for i in allStudents:
+        counter2 += 1
+        if (counter2 < len(allStudents)):
+            entry += i.capitalize() + ", "
+        else:
+            entry += i.capitalize()
+
+    entry += "\n"
+
+    att_file.write(entry)
+    att_file.close()
+    print "Today's attendance was added to the database!"
+    raw_input("Please press enter...")
+    exit(0)
+
+###############
+## Main Loop ##
+###############
+
+while(True):
+    user = (raw_input("What is your name? ")).lower()
+    old_studentdb_file = open("student_database.txt", "r")
+    admin_file = open("admin_database.txt", "r")
+
+    students = eval(old_studentdb_file.read())
+    admin = eval(admin_file.read())
+
+    admin_file.close()
+    old_studentdb_file.close()
+    del old_studentdb_file
+    del admin_file
+
+    if (user in admin):
+
+        counter = 0
+
+        pin = raw_input("Please enter your pin: ")
+        hashpin = str(sha256(str(pin)).digest())
+
+        while True:
+
+            if (hashpin == admin.get(user)):
+                getOption = raw_input("Would you like to ADD STUDENT, REMOVE STUDENT, or CHECK ATTENDANCE? ").lower()
+
+                if (getOption == "add student"):
+                    newStudent = raw_input("New student name: ")
+                    newPin = raw_input("Enter their new pin: ")
+
+                    if (len(newPin) == 4):
+                        addStudent(newStudent, newPin)
+
+                    else:
+                        newPin = raw_input("Enter a pin of exactly 4 digits: ")
+
+                    answer = raw_input("Is there something else you would like to do? ").lower()
+
+                    while True:
+                        if (answer == "no" or answer == "n"):
+                            break
+                        elif (answer == "yes" or answer == "y"):
+                            break
+                        else:
+                            answer = raw_input("Please type yes or no: ")
+
+                    if (answer == "no" or answer == "n"):
+                        break
+                    elif (answer == "yes" or answer == "y"):
+                        pass
+
+                if (getOption == "remove student"):
+                    name = raw_input("Which student would you like to remove? ")
+                    check = raw_input("Are you sure you would like to remove " + str(name).upper() + " from your roll sheet? ")
+
+                    while True:
+                        if (check == 'yes' or check == 'y'):
+
+                            counter = 0
+                            doublecheck = raw_input("Please re-enter your pin: ")
+
+                            if (sha256(doublecheck).digest() == admin.get(user)):
+                                removeStudent(name)
+                                break
+                            else:
+                                print "Wrong pin, Please try again."
+
+                        elif (check == "no" or check == "n"):
+                            print "The student was not removed."
+                            break
+
+                        else:
+                            print "Please type yes or no"
+
+                    answer = raw_input("Is there something else you would like to do? ").lower()
+
+                    while True:
+                        if (answer == "no" or answer == "n"):
+                            break
+                        elif (answer == "yes" or answer == "y"):
+                            break
+                        else:
+                            answer = raw_input("Please type yes or no: ")
+
+                    if (answer == "no" or answer == "n"):
+                        break
+                    elif (answer == "yes" or answer == "y"):
+                        pass
+
+                if (getOption == "check attendance"):
+                    attendance()
+
+                    answer = raw_input("Is there something else you would like to do? ").lower()
+
+                    while True:
+                        if (answer == "no" or answer == "n"):
+                            break
+                        elif (answer == "yes" or answer == "y"):
+                            break
+                        else:
+                            answer = raw_input("Please type yes or no: ")
+
+                    if (answer == "no" or answer == "n"):
+                        break
+                    elif (answer == "yes" or answer == "y"):
+                        pass
+
+                else:
+                    getOption = raw_input("Incorrect input, please type: ADD STUDENT, REMOVE STUDENT, or CHECK ATTENDANCE ").lower()
+
+
+            else:
+                pin = raw_input("Incorrect password, please try again: ")
+                hashpin = str(sha256(str(pin)).digest())
+
+
+    elif (user in students):
+
+        while True:
+
+            if (user in present):
+                print "You are already signed in for today"
+
+            else:
+
+                trys = 0
+
+                while True:
+
+                    pin = raw_input("Please enter your pin: ")
+                    hashpin = sha256(pin).digest()
+
+                    if (hashpin != students.get(user) and trys <= 3):
+                        print "This pin is incorrect, please try again"
+                        trys += 1
+
+                    elif (hashpin == students.get(user)):
+                        print "Welcome back {}".format(str(user))
+                        present.append(user)
+                        break
+
+                    elif (trys > 3):
+                        print "Too many failed attempts, try again later"
+                        break
+
+                break
+
+    else:
+        print "student not found"
+        break
+
+# Add absent list, Email attendance, add color to absent and present lists
